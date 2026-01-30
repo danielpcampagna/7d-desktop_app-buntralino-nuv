@@ -1,5 +1,6 @@
-import { FileCode2, Clock, Play, Circle } from 'lucide-react';
+import { Clock, Play, Circle } from 'lucide-react';
 import { Project } from '@/types/workspace';
+import { getTemplateConfig, CATEGORY_LABELS, CATEGORY_COLORS } from '@/types/templates';
 import { formatDistanceToNow } from 'date-fns';
 import { cn } from '@/lib/utils';
 
@@ -20,6 +21,9 @@ const StatusIndicator = ({ status }: { status: Project['status'] }) => {
 };
 
 export const ProjectCard = ({ project, onClick, viewMode = 'card' }: ProjectCardProps) => {
+  const templateConfig = getTemplateConfig(project.template);
+  const TemplateIcon = templateConfig?.icon;
+
   if (viewMode === 'list') {
     return (
       <button
@@ -32,7 +36,11 @@ export const ProjectCard = ({ project, onClick, viewMode = 'card' }: ProjectCard
         )}
       >
         <div className="p-2 rounded-md bg-surface-elevated group-hover:bg-primary/10 transition-colors">
-          <FileCode2 className="w-4 h-4 text-primary" />
+          {TemplateIcon ? (
+            <TemplateIcon className="w-4 h-4 text-primary" />
+          ) : (
+            <Circle className="w-4 h-4 text-primary" />
+          )}
         </div>
         
         <div className="flex-1 min-w-0">
@@ -41,6 +49,19 @@ export const ProjectCard = ({ project, onClick, viewMode = 'card' }: ProjectCard
             <h3 className="font-mono font-medium text-foreground truncate">
               {project.name}
             </h3>
+            {templateConfig && (
+              <span className={cn(
+                'px-1.5 py-0.5 rounded text-xs font-medium',
+                CATEGORY_COLORS[templateConfig.category]
+              )}>
+                {CATEGORY_LABELS[templateConfig.category]}
+              </span>
+            )}
+            {project.supportsVisualEditor && (
+              <span className="px-1.5 py-0.5 rounded text-xs font-medium bg-purple-500/10 text-purple-400">
+                Visual
+              </span>
+            )}
           </div>
           {project.description && (
             <p className="text-sm text-muted-foreground truncate mt-0.5">
@@ -76,7 +97,11 @@ export const ProjectCard = ({ project, onClick, viewMode = 'card' }: ProjectCard
     >
       <div className="flex items-start justify-between mb-4">
         <div className="p-3 rounded-lg bg-surface-elevated group-hover:bg-primary/10 transition-colors">
-          <FileCode2 className="w-5 h-5 text-primary" />
+          {TemplateIcon ? (
+            <TemplateIcon className="w-5 h-5 text-primary" />
+          ) : (
+            <Circle className="w-5 h-5 text-primary" />
+          )}
         </div>
         
         <div className="flex items-center gap-2">
@@ -95,7 +120,7 @@ export const ProjectCard = ({ project, onClick, viewMode = 'card' }: ProjectCard
         </p>
       )}
 
-      <div className="flex items-center justify-between text-xs text-text-muted">
+      <div className="flex items-center justify-between text-xs text-text-muted mb-3">
         <span className="font-mono px-2 py-1 rounded bg-surface-elevated">
           Python {project.pythonVersion}
         </span>
@@ -103,6 +128,23 @@ export const ProjectCard = ({ project, onClick, viewMode = 'card' }: ProjectCard
           <Clock size={12} />
           {formatDistanceToNow(project.lastModified, { addSuffix: true })}
         </span>
+      </div>
+
+      {/* Template badges */}
+      <div className="flex items-center gap-2">
+        {templateConfig && (
+          <span className={cn(
+            'px-2 py-0.5 rounded text-xs font-medium',
+            CATEGORY_COLORS[templateConfig.category]
+          )}>
+            {templateConfig.name}
+          </span>
+        )}
+        {project.supportsVisualEditor && (
+          <span className="px-2 py-0.5 rounded text-xs font-medium bg-purple-500/10 text-purple-400">
+            Visual Editor
+          </span>
+        )}
       </div>
     </button>
   );

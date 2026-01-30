@@ -47,6 +47,8 @@ const mockProjects: Project[] = [
     lastModified: new Date('2024-01-20'),
     pythonVersion: '3.11',
     status: 'idle',
+    template: 'dagster',
+    supportsVisualEditor: true,
   },
   {
     id: 'p2',
@@ -57,6 +59,8 @@ const mockProjects: Project[] = [
     lastModified: new Date('2024-01-18'),
     pythonVersion: '3.12',
     status: 'running',
+    template: 'fastapi',
+    supportsVisualEditor: false,
   },
   {
     id: 'p3',
@@ -67,15 +71,20 @@ const mockProjects: Project[] = [
     lastModified: new Date('2024-01-15'),
     pythonVersion: '3.10',
     status: 'idle',
+    template: 'python-package',
+    supportsVisualEditor: false,
   },
   {
     id: 'p4',
-    name: 'web-scraper',
+    name: 'data-workflows',
+    description: 'Prefect workflows for data processing',
     workspaceId: '1',
     createdAt: new Date('2024-01-12'),
     lastModified: new Date('2024-01-19'),
     pythonVersion: '3.11',
     status: 'idle',
+    template: 'prefect',
+    supportsVisualEditor: true,
   },
 ];
 
