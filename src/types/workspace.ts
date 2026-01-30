@@ -6,6 +6,8 @@ export interface Workspace {
   projectCount: number;
 }
 
+import { ProjectTemplate } from './templates';
+
 export interface Project {
   id: string;
   name: string;
@@ -15,6 +17,8 @@ export interface Project {
   lastModified: Date;
   pythonVersion: string;
   status: 'idle' | 'running' | 'deploying';
+  template: ProjectTemplate;
+  supportsVisualEditor: boolean;
 }
 
 export interface FileNode {
