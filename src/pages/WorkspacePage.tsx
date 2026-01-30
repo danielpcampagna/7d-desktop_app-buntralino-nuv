@@ -7,6 +7,7 @@ import { CreateProjectModal } from '@/components/CreateProjectModal';
 import { BottomIsland } from '@/components/BottomIsland';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 import { cn } from '@/lib/utils';
+import { ProjectTemplate, getTemplateConfig } from '@/types/templates';
 
 type ViewMode = 'card' | 'list';
 
@@ -36,7 +37,8 @@ const WorkspacePage = () => {
     navigate(`/workspace/${workspaceId}/project/${project.id}`);
   };
 
-  const handleCreateProject = (name: string, description: string, pythonVersion: string) => {
+  const handleCreateProject = (name: string, description: string, pythonVersion: string, template: ProjectTemplate) => {
+    const templateConfig = getTemplateConfig(template);
     const newProject = {
       id: Date.now().toString(),
       name,
@@ -46,6 +48,8 @@ const WorkspacePage = () => {
       lastModified: new Date(),
       pythonVersion,
       status: 'idle' as const,
+      template,
+      supportsVisualEditor: templateConfig?.supportsVisualEditor ?? false,
     };
     addProject(newProject);
   };
