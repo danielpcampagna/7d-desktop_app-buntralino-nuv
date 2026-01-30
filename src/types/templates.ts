@@ -1,4 +1,4 @@
-import { LucideIcon, Package, Zap, GitBranch, Workflow, FileCode, Wind, Wrench } from 'lucide-react';
+import { LucideIcon, Package, Zap, GitBranch, Workflow, FileCode, Wind, Wrench, FolderGit2, Box } from 'lucide-react';
 
 export type ProjectTemplate = 
   | 'python-package'
@@ -7,9 +7,10 @@ export type ProjectTemplate =
   | 'prefect'
   | 'dagu'
   | 'airflow'
-  | 'optilogic-utilities';
+  | 'optilogic-utilities'
+  | 'uv-python'; // Generic UV Python project
 
-export type TemplateCategory = 'library' | 'api' | 'etl' | 'utilities';
+export type TemplateCategory = 'library' | 'api' | 'etl' | 'utilities' | 'generic';
 
 export interface TemplateConfig {
   id: ProjectTemplate;
@@ -85,6 +86,15 @@ export const TEMPLATE_CONFIGS: TemplateConfig[] = [
     supportsVisualEditor: false,
     defaultFiles: ['src/__init__.py', 'src/utils.py', 'config.yaml', 'requirements.txt'],
   },
+  {
+    id: 'uv-python',
+    name: 'UV Python Project',
+    description: 'Generic Python project managed by UV with custom entry point configuration',
+    icon: Box,
+    category: 'generic',
+    supportsVisualEditor: false,
+    defaultFiles: ['src/main.py', 'pyproject.toml', 'README.md'],
+  },
 ];
 
 export const getTemplateConfig = (templateId: ProjectTemplate): TemplateConfig | undefined => {
@@ -107,6 +117,7 @@ export const CATEGORY_LABELS: Record<TemplateCategory, string> = {
   api: 'API',
   etl: 'ETL',
   utilities: 'Utilities',
+  generic: 'Generic',
 };
 
 export const CATEGORY_COLORS: Record<TemplateCategory, string> = {
@@ -114,29 +125,66 @@ export const CATEGORY_COLORS: Record<TemplateCategory, string> = {
   api: 'bg-amber-500/10 text-amber-400',
   etl: 'bg-emerald-500/10 text-emerald-400',
   utilities: 'bg-purple-500/10 text-purple-400',
+  generic: 'bg-gray-500/10 text-gray-400',
 };
 
 // Import source types
-export type ImportSource = 'data-guru';
+export type ImportSource = 'data-guru' | 'uv-python' | 'python-package';
+
+// Import mode determines the flow
+export type ImportMode = 'convert' | 'direct';
 
 export interface ImportSourceConfig {
   id: ImportSource;
   name: string;
   description: string;
-  fileExtensions: string[];
-  targetTemplates: ProjectTemplate[];
+  icon: LucideIcon;
+  mode: ImportMode; // 'convert' requires target selection, 'direct' imports as-is
+  targetTemplate?: ProjectTemplate; // For 'direct' mode, the template to use
+  targetTemplates?: ProjectTemplate[]; // For 'convert' mode, available targets
+  requiresEntryPoint?: boolean; // Whether user needs to specify entry point
+  requiresRunCommand?: boolean; // Whether user needs to specify run command
+  acceptsFolder?: boolean; // Whether this accepts folder upload instead of file
 }
 
 export const IMPORT_SOURCE_CONFIGS: ImportSourceConfig[] = [
   {
     id: 'data-guru',
-    name: 'Data Guru',
-    description: 'Import ETL pipelines from Data Guru format',
-    fileExtensions: ['.dg', '.dataguru', '.json'],
+    name: 'Data Guru Pipeline',
+    description: 'Import and convert ETL pipelines from Data Guru format to your preferred workflow tool',
+    icon: Workflow,
+    mode: 'convert',
     targetTemplates: ['airflow', 'dagster', 'prefect', 'dagu'],
+  },
+  {
+    id: 'uv-python',
+    name: 'UV Python Project',
+    description: 'Import an existing UV-managed Python project with custom entry point and run configuration',
+    icon: FolderGit2,
+    mode: 'direct',
+    targetTemplate: 'uv-python',
+    requiresEntryPoint: true,
+    requiresRunCommand: true,
+    acceptsFolder: true,
+  },
+  {
+    id: 'python-package',
+    name: 'Python Package',
+    description: 'Import an existing Python package that can be used as a library by other projects',
+    icon: Package,
+    mode: 'direct',
+    targetTemplate: 'python-package',
+    acceptsFolder: true,
   },
 ];
 
 export const getImportSourceConfig = (sourceId: ImportSource): ImportSourceConfig | undefined => {
   return IMPORT_SOURCE_CONFIGS.find(config => config.id === sourceId);
 };
+
+// Run command presets for UV Python projects
+export const UV_RUN_COMMAND_PRESETS = [
+  { label: 'Python script', command: 'uv run python {entryPoint}' },
+  { label: 'Module', command: 'uv run python -m {module}' },
+  { label: 'Custom', command: '' },
+];
