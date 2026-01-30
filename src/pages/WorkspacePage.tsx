@@ -4,7 +4,7 @@ import { ArrowLeft, FilePlus, LayoutGrid, List, Search, Upload } from 'lucide-re
 import { useWorkspaceStore } from '@/stores/workspaceStore';
 import { ProjectCard } from '@/components/ProjectCard';
 import { CreateProjectModal } from '@/components/CreateProjectModal';
-import { ImportProjectModal } from '@/components/ImportProjectModal';
+import { ImportProjectModal, ImportProjectData } from '@/components/ImportProjectModal';
 import { BottomIsland } from '@/components/BottomIsland';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 import { cn } from '@/lib/utils';
@@ -56,28 +56,23 @@ const WorkspacePage = () => {
     addProject(newProject);
   };
 
-  const handleImportProject = (
-    name: string, 
-    description: string, 
-    pythonVersion: string, 
-    targetTemplate: ProjectTemplate,
-    _sourceFile: File | null
-  ) => {
-    const templateConfig = getTemplateConfig(targetTemplate);
+  const handleImportProject = (data: ImportProjectData) => {
+    const templateConfig = getTemplateConfig(data.targetTemplate);
     const newProject = {
       id: Date.now().toString(),
-      name,
-      description: description || `Imported from Data Guru`,
+      name: data.name,
+      description: data.description || `Imported project`,
       workspaceId: workspaceId!,
       createdAt: new Date(),
       lastModified: new Date(),
-      pythonVersion,
+      pythonVersion: data.pythonVersion,
       status: 'idle' as const,
-      template: targetTemplate,
+      template: data.targetTemplate,
       supportsVisualEditor: templateConfig?.supportsVisualEditor ?? false,
     };
     addProject(newProject);
-    // Note: Actual file conversion will be handled by the backend API
+    // Note: Actual file conversion and project setup will be handled by the backend API
+    // Additional data available: data.sourceFile, data.sourcePath, data.entryPoint, data.runCommand
   };
 
   // Keyboard shortcuts
@@ -235,7 +230,7 @@ const WorkspacePage = () => {
                   onClick={() => setIsImportModalOpen(true)}
                   className="text-primary hover:underline text-sm"
                 >
-                  Import from Data Guru
+                  Import an existing project
                 </button>
               </div>
             )}
