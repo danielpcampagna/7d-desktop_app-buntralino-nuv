@@ -1,9 +1,10 @@
 import { useState, useMemo, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, FilePlus, LayoutGrid, List, Search } from 'lucide-react';
+import { ArrowLeft, FilePlus, LayoutGrid, List, Search, Upload } from 'lucide-react';
 import { useWorkspaceStore } from '@/stores/workspaceStore';
 import { ProjectCard } from '@/components/ProjectCard';
 import { CreateProjectModal } from '@/components/CreateProjectModal';
+import { ImportProjectModal } from '@/components/ImportProjectModal';
 import { BottomIsland } from '@/components/BottomIsland';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 import { cn } from '@/lib/utils';
@@ -18,7 +19,8 @@ const WorkspacePage = () => {
   
   const [viewMode, setViewMode] = useState<ViewMode>('card');
   const [searchQuery, setSearchQuery] = useState('');
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
 
   const workspace = workspaces.find((w) => w.id === workspaceId);
   
@@ -54,9 +56,33 @@ const WorkspacePage = () => {
     addProject(newProject);
   };
 
+  const handleImportProject = (
+    name: string, 
+    description: string, 
+    pythonVersion: string, 
+    targetTemplate: ProjectTemplate,
+    _sourceFile: File | null
+  ) => {
+    const templateConfig = getTemplateConfig(targetTemplate);
+    const newProject = {
+      id: Date.now().toString(),
+      name,
+      description: description || `Imported from Data Guru`,
+      workspaceId: workspaceId!,
+      createdAt: new Date(),
+      lastModified: new Date(),
+      pythonVersion,
+      status: 'idle' as const,
+      template: targetTemplate,
+      supportsVisualEditor: templateConfig?.supportsVisualEditor ?? false,
+    };
+    addProject(newProject);
+    // Note: Actual file conversion will be handled by the backend API
+  };
+
   // Keyboard shortcuts
   useKeyboardShortcuts({
-    createProject: useCallback(() => setIsModalOpen(true), []),
+    createProject: useCallback(() => setIsCreateModalOpen(true), []),
     goHome: useCallback(() => navigate('/'), [navigate]),
     goBack: useCallback(() => navigate('/'), [navigate]),
   });
@@ -87,18 +113,32 @@ const WorkspacePage = () => {
             <p className="text-sm text-muted-foreground font-mono">{workspace.path}</p>
           </div>
 
-          <button
-            onClick={() => setIsModalOpen(true)}
-            className={cn(
-              'flex items-center gap-2 px-4 py-2 rounded-lg',
-              'bg-primary text-primary-foreground',
-              'hover:opacity-90 transition-opacity',
-              'font-medium text-sm'
-            )}
-          >
-            <FilePlus size={16} />
-            New Project
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setIsImportModalOpen(true)}
+              className={cn(
+                'flex items-center gap-2 px-4 py-2 rounded-lg',
+                'bg-surface-elevated text-foreground',
+                'hover:bg-surface-elevated/80 transition-colors',
+                'font-medium text-sm'
+              )}
+            >
+              <Upload size={16} />
+              Import
+            </button>
+            <button
+              onClick={() => setIsCreateModalOpen(true)}
+              className={cn(
+                'flex items-center gap-2 px-4 py-2 rounded-lg',
+                'bg-primary text-primary-foreground',
+                'hover:opacity-90 transition-opacity',
+                'font-medium text-sm'
+              )}
+            >
+              <FilePlus size={16} />
+              New Project
+            </button>
+          </div>
         </div>
       </div>
 
@@ -183,12 +223,21 @@ const WorkspacePage = () => {
                 : 'No projects in this workspace'}
             </p>
             {!searchQuery && (
-              <button
-                onClick={() => setIsModalOpen(true)}
-                className="text-primary hover:underline text-sm"
-              >
-                Create your first project
-              </button>
+              <div className="flex items-center justify-center gap-4">
+                <button
+                  onClick={() => setIsCreateModalOpen(true)}
+                  className="text-primary hover:underline text-sm"
+                >
+                  Create your first project
+                </button>
+                <span className="text-muted-foreground">or</span>
+                <button
+                  onClick={() => setIsImportModalOpen(true)}
+                  className="text-primary hover:underline text-sm"
+                >
+                  Import from Data Guru
+                </button>
+              </div>
             )}
           </div>
         )}
@@ -197,9 +246,15 @@ const WorkspacePage = () => {
       <BottomIsland />
 
       <CreateProjectModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
+        isOpen={isCreateModalOpen}
+        onClose={() => setIsCreateModalOpen(false)}
         onCreate={handleCreateProject}
+      />
+
+      <ImportProjectModal
+        isOpen={isImportModalOpen}
+        onClose={() => setIsImportModalOpen(false)}
+        onImport={handleImportProject}
       />
     </div>
   );
