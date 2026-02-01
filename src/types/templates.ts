@@ -1,4 +1,4 @@
-import { LucideIcon, Package, Zap, GitBranch, Workflow, FileCode, Wind, Wrench, FolderGit2, Box } from 'lucide-react';
+import { LucideIcon, Package, Zap, GitBranch, Workflow, FileCode, Wind, Wrench, FolderGit2, Box, FlaskConical } from 'lucide-react';
 
 export type ProjectTemplate = 
   | 'python-package'
@@ -8,9 +8,10 @@ export type ProjectTemplate =
   | 'dagu'
   | 'airflow'
   | 'optilogic-utilities'
-  | 'uv-python'; // Generic UV Python project
+  | 'uv-python' // Generic UV Python project
+  | 'hypothesis-spec'; // Hypothesis-driven ETL creation
 
-export type TemplateCategory = 'library' | 'api' | 'etl' | 'utilities' | 'generic';
+export type TemplateCategory = 'library' | 'api' | 'etl' | 'utilities' | 'generic' | 'hypothesis';
 
 export interface TemplateConfig {
   id: ProjectTemplate;
@@ -95,6 +96,15 @@ export const TEMPLATE_CONFIGS: TemplateConfig[] = [
     supportsVisualEditor: false,
     defaultFiles: ['src/main.py', 'pyproject.toml', 'README.md'],
   },
+  {
+    id: 'hypothesis-spec',
+    name: 'Hypothesis Specification',
+    description: 'Create ETL pipelines through natural language hypothesis. Upload datasets, analyze data, and describe your pipeline in plain English.',
+    icon: FlaskConical,
+    category: 'hypothesis',
+    supportsVisualEditor: true,
+    defaultFiles: [], // Files are generated based on target ETL tool
+  },
 ];
 
 export const getTemplateConfig = (templateId: ProjectTemplate): TemplateConfig | undefined => {
@@ -118,6 +128,7 @@ export const CATEGORY_LABELS: Record<TemplateCategory, string> = {
   etl: 'ETL',
   utilities: 'Utilities',
   generic: 'Generic',
+  hypothesis: 'Hypothesis',
 };
 
 export const CATEGORY_COLORS: Record<TemplateCategory, string> = {
@@ -126,6 +137,7 @@ export const CATEGORY_COLORS: Record<TemplateCategory, string> = {
   etl: 'bg-emerald-500/10 text-emerald-400',
   utilities: 'bg-purple-500/10 text-purple-400',
   generic: 'bg-gray-500/10 text-gray-400',
+  hypothesis: 'bg-pink-500/10 text-pink-400',
 };
 
 // Import source types

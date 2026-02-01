@@ -36,7 +36,12 @@ const WorkspacePage = () => {
 
   const handleOpenProject = (project: typeof projects[0]) => {
     setCurrentProject(project);
-    navigate(`/workspace/${workspaceId}/project/${project.id}`);
+    // Route hypothesis projects to the dedicated hypothesis page
+    if (project.template === 'hypothesis-spec') {
+      navigate(`/workspace/${workspaceId}/hypothesis/${project.id}`);
+    } else {
+      navigate(`/workspace/${workspaceId}/project/${project.id}`);
+    }
   };
 
   const handleCreateProject = (name: string, description: string, pythonVersion: string, template: ProjectTemplate) => {

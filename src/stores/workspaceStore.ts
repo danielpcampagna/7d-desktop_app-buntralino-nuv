@@ -10,6 +10,7 @@ interface WorkspaceState {
   setCurrentProject: (project: Project | null) => void;
   addWorkspace: (workspace: Workspace) => void;
   addProject: (project: Project) => void;
+  removeProject: (projectId: string) => void;
 }
 
 // Mock data for demonstration
@@ -86,6 +87,18 @@ const mockProjects: Project[] = [
     template: 'prefect',
     supportsVisualEditor: true,
   },
+  {
+    id: 'p5',
+    name: 'sales-analysis-hypothesis',
+    description: 'Hypothesis-driven ETL for sales data analysis',
+    workspaceId: '1',
+    createdAt: new Date('2024-01-22'),
+    lastModified: new Date('2024-01-22'),
+    pythonVersion: '3.11',
+    status: 'idle',
+    template: 'hypothesis-spec',
+    supportsVisualEditor: true,
+  },
 ];
 
 export const useWorkspaceStore = create<WorkspaceState>((set) => ({
@@ -99,4 +112,9 @@ export const useWorkspaceStore = create<WorkspaceState>((set) => ({
     set((state) => ({ workspaces: [...state.workspaces, workspace] })),
   addProject: (project) =>
     set((state) => ({ projects: [...state.projects, project] })),
+  removeProject: (projectId) =>
+    set((state) => ({
+      projects: state.projects.filter((p) => p.id !== projectId),
+      currentProject: state.currentProject?.id === projectId ? null : state.currentProject,
+    })),
 }));

@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import WorkspacePage from "./pages/WorkspacePage";
 import ProjectPage from "./pages/ProjectPage";
+import HypothesisProjectPage from "./pages/HypothesisProjectPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -20,6 +21,7 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/workspace/:workspaceId" element={<WorkspacePage />} />
           <Route path="/workspace/:workspaceId/project/:projectId" element={<ProjectPage />} />
+          <Route path="/workspace/:workspaceId/hypothesis/:projectId" element={<HypothesisProjectPage />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
